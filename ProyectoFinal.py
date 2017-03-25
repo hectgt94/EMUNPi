@@ -9,7 +9,7 @@ import os
 import optparse
 import datetime
 import urllib
-
+from collections import OrderedDict
 
 ######################################################
 
@@ -27,6 +27,7 @@ def configPrt(device, baud):
       dsrdtr=False,
       xonxoff=False
   )
+  return port
 
 ######################################################
 
@@ -44,7 +45,7 @@ def leerInfo(data_req):
     else:
         port.open()
         
-  return(resp)
+  return resp
 
 ######################################################
 
@@ -161,25 +162,29 @@ baud = 19200
 
 
 while True:
-  configPrt(dev, baud)
+  port = configPrt(dev, baud)
   error_count = 0
   while True:
     data_req = "TEST\n"
     resp = leerInfo(data_req)
 
     if "TEST" in resp :
+      error_count1 = 0
       error_count2 = 0
       while True: 
         data_req = "LPS 2 1\n"
         resp = leerInfo(data_req)
 
-        weath_data = decodeMeteo(resp)
-
-        resWun = envioWUN()
-
-        if not('success.' in resWun):
-          error_count2 = error_count2 + 1
-          if error_count2 == 10:
+        if "LOO" in resp:
+          weath_data = decodeMeteo(resp)
+          resWun = envioWUN(weath_data)
+          if not('success.' in resWun):
+            error_count2 = error_count2 + 1
+            if error_count2 == 10:
+              break
+        else:
+          error_count1 = error_count1 + 1
+          if error_count_1 == 10
             break
     else:
       error_count = error_count + 1
