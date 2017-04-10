@@ -2,14 +2,26 @@
 
 import serial
 import time
-import binascii
-import struct
 import math
+import subprocess
 import os
-import optparse
 import datetime
-import urllib
+import requests
+import logging
 from collections import OrderedDict
+######################################################
+#Configuracion del logfile
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+
+file_handler = logging.FileHandler('emunpi.log')
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+
 
 ######################################################
 
@@ -38,14 +50,12 @@ def leerInfo(data_req):
         print("Port opened...")
         port.write(data_req)
         resp=port.read(200)
-        print(resp)
-        raw = resp.encode('hex')
-        print(raw)
         break
     else:
         port.open()
-        
+  print("Data extracted...")
   return resp
+######################################################
 
 ######################################################
 
@@ -80,7 +90,7 @@ def decodeMeteo(resp):
   dew_pnt    = float.fromhex(dew_pnt)
   out_hum    = float.fromhex(out_hum)
   rain_rate  = float.fromhex(rain_rate)
-  uv         = float.fromhex(uv)
+  uv         = float.fromhex(uv)/10
   solar_rad  = float.fromhex(solar_rad)
   daily_rain = float.fromhex(daily_rain)
 
@@ -98,59 +108,58 @@ def decodeMeteo(resp):
   data['solar_rad']  = "%.2f" % solar_rad
   data['daily_rain'] = "%.2f" % daily_rain
 
-  print(bar)
-  print(in_temp)
-  print(in_hum)
-  print(out_temp)
-  print(wind_sp)
-  print(wind_dir)
-  print(wind_gust)
-  print(dew_pnt)
-  print(out_hum)
-  print(rain_rate)
-  print(uv)
-  print(solar_rad)
-  print(daily_rain)
-
+#  print(bar)
+#  print(in_temp)
+#  print(in_hum)
+#  print(out_temp)
+#  print(wind_sp)
+#  print(wind_dir)
+#  print(wind_gust)
+#  print(dew_pnt)
+#  print(out_hum)
+#  print(rain_rate)
+#  print(uv)
+#  print(solar_rad)
+#  print(daily_rain)
+  print("Data decoded...")
   return data
 
 ######################################################
 
 def envioWUN(data):
-  interval = 20
+  interval = 10
   requestUrl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php'
   nowUtc = datetime.datetime.utcnow()
   parameters = {
-    'action'        : 'updateraw',
-    'ID'            : 'IATLNTIC4',                              # ID de la estacion en wunderground.com
-    'PASSWORD'      : 'mauro97',                                # Contrasena wunderground.com
-    'dateutc'       : nowUtc.strftime( '%Y-%m-%d %H:%M:%S' ),   # Estampa de tiempo
-    'tempf'         : data['out_temp'],                         # Temperatura externa [F]
-    'humidity'      : data['out_hum'],                          # Porcentaje de humedad [0-100%]
-    'dewptf'        : data['dew_pnt'],                          # Punto de rocio [F]
-    'baromin'       : data['bar'],                              # Presion barometrica [inches]
-    'windspeedmph'  : data['wind_sp'],                          # velocidad del viendo [mph]
-    'winddir'       : data['wind_dir'],                         # Direccion del viento [0-360]
-    'rainin'        : data['rain_rate'],                        # Lluvia en la ultima hora
-    'dailyrainin'   : data['daily_rain'],                       # Lluvia en el dia
-    'solarradiation': data['solar_rad'],                        # Radiacion solar
-    'UV'            : data['uv'],                               # Radiacion UV
-    'windgustmph'   : data['wind_gust']                         # 
+    'action'         : 'updateraw',
+    'ID'             : 'IATLNTIC4',                              # ID de la estacion en wunderground.com
+    'PASSWORD'       : 'mauro97',                                # Contrasena wunderground.com
+    'dateutc'        : nowUtc.strftime( '%Y-%m-%d %H:%M:%S' ),   # Estampa de tiempo
+    'tempf'          : data['out_temp'],                         # Temperatura externa [F]
+    'humidity'       : data['out_hum'],                          # Porcentaje de humedad [0-100%]
+    'dewptf'         : data['dew_pnt'],                          # Punto de rocio [F]
+    'baromin'        : data['bar'],                              # Presion barometrica [inches]
+    'windspeedmph'   : data['wind_sp'],                          # velocidad del viendo [mph]
+    'winddir'        : data['wind_dir'],                         # Direccion del viento [0-360]
+    'rainin'         : data['rain_rate'],                        # Lluvia en la ultima hora
+    'dailyrainin'    : data['daily_rain'],                       # Lluvia en el dia
+    'solarradiation' : data['solar_rad'],                        # Radiacion solar
+    'UV'             : data['uv'],                               # Radiacion UV
+    'windgustmph'    : data['wind_gust']                         # 
   }
   if interval <= 10:
     parameters['realtime'] = 1
     parameters['rtfreq'] = interval
     requestUrl = 'http://rtupdate.wunderground.com/weatherstation/updateweatherstation.php'
-    
-  fullUrl = requestUrl + '?' + urllib.urlencode( parameters )
-  print "sending to wunderground...", 
-  u = urllib.urlopen( fullUrl )
-  response = u.read().strip()
-  if response == "success":
+
+  print "sending to wunderground...",
+  u = requests.post(requestUrl, data=parameters)
+  response = u.text
+  if "success" in response:
     print "success."
   else:
     print "error."
-    print 'url:', fullUrl
+    print 'url:', u.url
     print 'response:', response
 
   return response
@@ -159,43 +168,58 @@ def envioWUN(data):
 
 dev = "/dev/ttyUSB0"
 baud = 19200
-
-
+print("Inicializando programa...")
+time.sleep(5)
 while True:
-  port = configPrt(dev, baud)
-  error_count = 0
-  while True:
-    data_req = "TEST\n"
-    resp = leerInfo(data_req)
-
-    if "TEST" in resp :
-      error_count1 = 0
-      error_count2 = 0
-      while True: 
-        data_req = "LPS 2 1\n"
-        resp = leerInfo(data_req)
-
-        if "LOO" in resp:
-          weath_data = decodeMeteo(resp)
-          resWun = envioWUN(weath_data)
-          if not('success.' in resWun):
-            error_count2 = error_count2 + 1
-            if error_count2 == 10:
-              break
+  error_USB = 0
+  try:
+    try:
+      port = configPrt(dev, baud)
+    except:
+      error_USB = error_USB + 1
+      if error_USB < 100
+        logger.info('Intentar cambio de puerto USB')
+        if dev == "/dev/ttyUSB0":
+          dev = "/dev/ttyUSB1"
         else:
-          error_count1 = error_count1 + 1
-          if error_count_1 == 10
-            break
-    else:
-      error_count = error_count + 1
-
-      if error_count == 3:
-        break
-
-
-        
-        
-        
-        
-
+          dev = "/dev/ttyUSB0"
+      else:
+        logger.error('USB no conectado')
+        error_USB = 0
+    error_TEST = 0
+    while True:
+      data_req = "TEST\n"
+      resp = leerInfo(data_req)
+      if "TEST" in resp:
+        error_LOOP = 0
+        error_WUN = 0
+        while True:
+          try:
+            subprocess.call("./tiempo.sh")
+          except:
+            logger.error("Error al setear fecha y hora")
+          data_req = "LPS 2 1\n"
+          resp = leerInfo(data_req)
+          if "LOO" in resp:
+            weath_data = decodeMeteo(resp)
+            resWun = envioWUN(weath_data)
+            if not('success' in resWun):
+              logger.debug('Envio incorrecto a WUN')
+              error_WUN = error_WUN + 1
+              if error_WUN == 10:
+                logger.error('No se esta enviando correctamente a WUN')
+                break
+          else:
+            error_LOOP = error_LOOP + 1
+            logger.debug('Recepcion incorrecta de la informacion')
+            if error_LOOP == 100:
+              logger.warning('No se esta recibiendo correctamente la informacion')
+              break
+      else:
+        error_TEST = error_TEST + 1
+        if error_count == 3:
+          logger.warning('No se pudo probar la conexion')
+          break
+  except:
+    pass
 
