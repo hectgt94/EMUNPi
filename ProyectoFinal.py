@@ -184,7 +184,7 @@ while True:
       port = configPrt(dev, baud)
     except:
       error_USB = error_USB + 1
-      if error_USB < 100
+      if error_USB < 100:
         logger.info('Intentar cambio de puerto USB')
         if dev == "/dev/ttyUSB0":
           dev = "/dev/ttyUSB1"
