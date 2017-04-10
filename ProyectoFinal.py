@@ -205,7 +205,7 @@ while True:
           try:
             subprocess.call("./tiempo.sh")
           except:
-            logger.error("Error al setear fecha y hora")
+            logger.error('Error al setear fecha y hora')
           logger2.info('LOOP')
           data_req = "LPS 2 1\n"
           resp = leerInfo(data_req)
