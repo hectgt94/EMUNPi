@@ -15,13 +15,19 @@ from collections import OrderedDict
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+logger2 = logging.getLogger(__name__)
+logger2.setLevel(logging.DEBUG)
+
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
 
-file_handler = logging.FileHandler('emunpi.log')
+file_handler = logging.FileHandler('emunpi_error.log')
 file_handler.setFormatter(formatter)
 
-logger.addHandler(file_handler)
+file_handler2 = logging.FileHandler('emunpi_total.log')
+file_handler2.setFormatter(formatter)
 
+logger.addHandler(file_handler)
+logger2.addHandler(file_handler2)
 
 ######################################################
 
@@ -174,6 +180,7 @@ while True:
   error_USB = 0
   try:
     try:
+      logger2.info('Conexion')
       port = configPrt(dev, baud)
     except:
       error_USB = error_USB + 1
@@ -188,6 +195,7 @@ while True:
         error_USB = 0
     error_TEST = 0
     while True:
+      logger2.info('TEST')
       data_req = "TEST\n"
       resp = leerInfo(data_req)
       if "TEST" in resp:
@@ -198,10 +206,12 @@ while True:
             subprocess.call("./tiempo.sh")
           except:
             logger.error("Error al setear fecha y hora")
+          logger2.info('LOOP')
           data_req = "LPS 2 1\n"
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
+            logger2.info('WUN')
             resWun = envioWUN(weath_data)
             if not('success' in resWun):
               logger.debug('Envio incorrecto a WUN')
