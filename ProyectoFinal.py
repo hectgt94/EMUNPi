@@ -15,19 +15,19 @@ from collections import OrderedDict
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-logger2 = logging.getLogger(__name__)
-logger2.setLevel(logging.DEBUG)
+#logger2 = logging.getLogger(__name__)
+#logger2.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
 
-file_handler = logging.FileHandler('emunpi_error.log')
+file_handler = logging.FileHandler('emunpi.log')
 file_handler.setFormatter(formatter)
 
-file_handler2 = logging.FileHandler('emunpi_total.log')
-file_handler2.setFormatter(formatter)
+#file_handler2 = logging.FileHandler('emunpi_total.log')
+#file_handler2.setFormatter(formatter)
 
 logger.addHandler(file_handler)
-logger2.addHandler(file_handler2)
+#logger2.addHandler(file_handler2)
 
 ######################################################
 
@@ -180,12 +180,16 @@ while True:
   error_USB = 0
   try:
     try:
-      logger2.info('Conexion')
+      logger.info('Probando conexion fisica USB...')
       port = configPrt(dev, baud)
     except:
       error_USB = error_USB + 1
       if error_USB < 100:
+<<<<<<< HEAD
         logger.info('Intentar cambio de puerto USB')
+=======
+        logger.warning('Intentar cambio de puerto USB')
+>>>>>>> origin/master
         if dev == "/dev/ttyUSB0":
           dev = "/dev/ttyUSB1"
         else:
@@ -195,7 +199,7 @@ while True:
         error_USB = 0
     error_TEST = 0
     while True:
-      logger2.info('TEST')
+      logger.info('Probando conexion TEST...')
       data_req = "TEST\n"
       resp = leerInfo(data_req)
       if "TEST" in resp:
@@ -206,28 +210,28 @@ while True:
             subprocess.call("./tiempo.sh")
           except:
             logger.error('Error al setear fecha y hora')
-          logger2.info('LOOP')
+          logger.info('Extrayendo informacion LOOP...')
           data_req = "LPS 2 1\n"
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            logger2.info('WUN')
+            logger.info('Enviando a WUN...')
             resWun = envioWUN(weath_data)
             if not('success' in resWun):
-              logger.debug('Envio incorrecto a WUN')
+              logger.warning('Envio incorrecto a WUN')
               error_WUN = error_WUN + 1
               if error_WUN == 10:
                 logger.error('No se esta enviando correctamente a WUN')
                 break
           else:
             error_LOOP = error_LOOP + 1
-            logger.debug('Recepcion incorrecta de la informacion')
-            if error_LOOP == 100:
-              logger.warning('No se esta recibiendo correctamente la informacion')
+            logger.warning('Recepcion incorrecta de la informacion')
+            if error_LOOP == 10:
+              logger.error('No se esta recibiendo correctamente la informacion')
               break
       else:
         error_TEST = error_TEST + 1
-        if error_count == 3:
+        if error_TEST == 3:
           logger.warning('No se pudo probar la conexion')
           break
   except:
