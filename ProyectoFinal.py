@@ -185,17 +185,16 @@ while True:
     except:
       error_USB = error_USB + 1
       if error_USB < 100:
-<<<<<<< HEAD
-        logger.info('Intentar cambio de puerto USB')
-=======
         logger.warning('Intentar cambio de puerto USB')
->>>>>>> origin/master
         if dev == "/dev/ttyUSB0":
           dev = "/dev/ttyUSB1"
         else:
           dev = "/dev/ttyUSB0"
       else:
         logger.error('USB no conectado')
+        ##########################################
+        #Espacio para enviar error a PowerTracking
+        ##########################################
         error_USB = 0
     error_TEST = 0
     while True:
