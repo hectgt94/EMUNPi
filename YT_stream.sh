@@ -10,7 +10,12 @@ import json
 from pprint import pprint
 
 response = json.loads(os.environ['RESPONSE_STRING'])
-ip = response["result"]["responseData"]["msg"]["iip"]
+if 'result' in response:
+        if 'responseData' in response["result"]:
+                ip = response["result"]["responseData"]["msg"]["iip"]
+else:
+        ip = "0.0.0.0"
+
 print ip
 
 END`
@@ -68,7 +73,12 @@ import os
 import json
 from pprint import pprint
 response = json.loads(os.environ['RESPONSE_STRING'])
-ip = response["result"]["responseData"]["msg"]["iip"]
+if 'result' in response:
+        if 'responseData' in response["result"]:
+                ip = response["result"]["responseData"]["msg"]["iip"]
+else:
+        ip = "0.0.0.0"
+
 print ip
 END
       sleep 10
