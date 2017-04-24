@@ -1,7 +1,7 @@
 #!/bin/sh
 #Camera - Video and Audio Connection Settings
 MAC='60:E3:27:FE:A2:25'
-export RESPONSE_STRING=$(curl -XPOST -H 'Content-Type: application/json' -d '{"method":"passthrough","params":{"requestData":{"command":"GET_EXTRA_INFO","content":0},"deviceId":"FFFFDE8C8D867E29EC642E15FCE34D1D00004492"}}' 'https://use1-wap.tplinkcloud.com/?token=8c585b83-53be92f904af4a6e83f9d1c')
+export RESPONSE_STRING="$(curl -XPOST -H 'Content-Type: application/json' -d '{"method":"passthrough","params":{"requestData":{"command":"GET_EXTRA_INFO","content":0},"deviceId":"FFFFDE8C8D867E29EC642E15FCE34D1D00004492"}}' 'https://use1-wap.tplinkcloud.com/?token=8c585b83-53be92f904af4a6e83f9d1c')"
 
 IP=`python - << END
 
