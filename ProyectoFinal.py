@@ -8,31 +8,26 @@ import os
 import datetime
 import requests
 import logging
+import RPi.GPIO as GPIO
 from collections import OrderedDict
+
 ######################################################
 #Configuracion del logfile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-#logger2 = logging.getLogger(__name__)
-#logger2.setLevel(logging.DEBUG)
-
 formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
 
 file_handler = logging.FileHandler('emunpi.log')
 file_handler.setFormatter(formatter)
 
-#file_handler2 = logging.FileHandler('emunpi_total.log')
-#file_handler2.setFormatter(formatter)
-
 logger.addHandler(file_handler)
-#logger2.addHandler(file_handler2)
 
 ######################################################
+# Configuracion del puerto serial USB
 
 def configPrt(device, baud):
-  # Configuracion del puerto
   port =serial.Serial(
       device,
       baud,
@@ -48,9 +43,9 @@ def configPrt(device, baud):
   return port
 
 ######################################################
+# Extrauer datos de la consola dependiendo del REQUEST hecho
 
 def leerInfo(data_req):
-  # Solicitar datos usando LOOP2
   while True:
     if port.isOpen():
         print("Port opened...")
@@ -61,9 +56,9 @@ def leerInfo(data_req):
         port.open()
   print("Data extracted...")
   return resp
-######################################################
 
 ######################################################
+#Decodificacion de los datos LOOP extraidos
 
 def decodeMeteo(resp):
 
@@ -72,19 +67,19 @@ def decodeMeteo(resp):
   # Separar datos
   i = raw.index("4c4f4f")                     #indice donde empieza la trama de 100 bytes LOOP2
 
-  bar        = (raw[i+16:i+18] + raw[i+14:i+16])             #Presion Barometrica
-  in_temp    = (raw[i+20:i+22] + raw[i+18:i+20])
-  in_hum     = (raw[i+22:i+24])
-  out_temp   = (raw[i+26:i+28] + raw[i+24:i+26])
-  wind_sp    = (raw[i+28:i+30])
-  wind_dir   = (raw[i+34:i+36] + raw[i+32:i+34])
-  wind_gust  = (raw[i+46:i+48] + raw[i+44:i+46])
-  dew_pnt    = (raw[i+62:i+64] + raw[i+60:i+62])
-  out_hum    = (raw[i+66:i+68])
-  rain_rate  = (raw[i+84:i+86] + raw[i+82:i+84])
-  uv         = (raw[i+86:i+88])
-  solar_rad  = (raw[i+90:i+92] + raw[i+88:i+90])
-  daily_rain = (raw[i+102:i+104] + raw[i+100:i+102])
+  bar        = (raw[i+16:i+18] + raw[i+14:i+16])             # Presion Barometrica
+  in_temp    = (raw[i+20:i+22] + raw[i+18:i+20])             # Temperatura Interna
+  in_hum     = (raw[i+22:i+24])                              # Humedad Interna
+  out_temp   = (raw[i+26:i+28] + raw[i+24:i+26])             # Temperatura Externa
+  wind_sp    = (raw[i+28:i+30])                              # Velocidad del viento
+  wind_dir   = (raw[i+34:i+36] + raw[i+32:i+34])             # Direccion del viento
+  wind_gust  = (raw[i+46:i+48] + raw[i+44:i+46])             # Rafagas de viento
+  dew_pnt    = (raw[i+62:i+64] + raw[i+60:i+62])             # Punto de rocio
+  out_hum    = (raw[i+66:i+68])                              # Humedad Externa
+  rain_rate  = (raw[i+84:i+86] + raw[i+82:i+84])             # Tasa de lluvia
+  uv         = (raw[i+86:i+88])                              # Indice UV
+  solar_rad  = (raw[i+90:i+92] + raw[i+88:i+90])             # Radiacion Solar
+  daily_rain = (raw[i+102:i+104] + raw[i+100:i+102])         # Lluvia diaria
 
   bar        = float.fromhex(bar)/1000
   in_temp    = float.fromhex(in_temp)/10
@@ -114,23 +109,11 @@ def decodeMeteo(resp):
   data['solar_rad']  = "%.2f" % solar_rad
   data['daily_rain'] = "%.2f" % daily_rain
 
-#  print(bar)
-#  print(in_temp)
-#  print(in_hum)
-#  print(out_temp)
-#  print(wind_sp)
-#  print(wind_dir)
-#  print(wind_gust)
-#  print(dew_pnt)
-#  print(out_hum)
-#  print(rain_rate)
-#  print(uv)
-#  print(solar_rad)
-#  print(daily_rain)
   print("Data decoded...")
   return data
 
 ######################################################
+# Envio de datos a WeatherUnderground
 
 def envioWUN(data):
   interval = 10
@@ -151,7 +134,7 @@ def envioWUN(data):
     'dailyrainin'    : data['daily_rain'],                       # Lluvia en el dia
     'solarradiation' : data['solar_rad'],                        # Radiacion solar
     'UV'             : data['uv'],                               # Radiacion UV
-    'windgustmph'    : data['wind_gust']                         # 
+    'windgustmph'    : data['wind_gust']                         # Rafagas de viento
   }
   if interval <= 10:
     parameters['realtime'] = 1
@@ -171,6 +154,46 @@ def envioWUN(data):
   return response
 
 ######################################################
+#Parpadeo del LED dependiendo del estado
+
+def led_status(estado,stat):
+  if (estado == "Envio"):
+    GPIO.output(stat, 1)
+    time.sleep(1)
+    GPIO.output(stat, 0)
+  elif (estado == "USBError"):
+    GPIO.output(stat, 1)
+    time.sleep(0.2)
+    GPIO.output(stat, 0)
+    time.sleep(0.2)
+    GPIO.output(stat, 1)
+    time.sleep(0.2)
+    GPIO.output(stat, 0)
+    time.sleep(0.2)
+    GPIO.output(stat, 1)
+    time.sleep(0.2)
+    GPIO.output(stat, 0)
+  elif (estado == "SENDError"):
+    GPIO.output(stat, 1)
+    time.sleep(0.1)
+    GPIO.output(stat, 0)
+    time.sleep(0.1)    
+    GPIO.output(stat, 1)
+    time.sleep(0.1)
+    GPIO.output(stat, 0)
+    time.sleep(0.4)
+    GPIO.output(stat, 1)
+    time.sleep(0.1)
+    GPIO.output(stat, 0)
+    time.sleep(0.1)
+    GPIO.output(stat, 1)
+    time.sleep(0.1)
+    GPIO.output(stat, 0)
+
+######################################################
+GPIO.setmode(GPIO.BCM)
+stat=10
+GPIO.setup(stat, GPIO.IN)
 
 dev = "/dev/ttyUSB0"
 baud = 19200
@@ -192,9 +215,11 @@ while True:
           dev = "/dev/ttyUSB0"
       else:
         logger.error('USB no conectado')
-        ##########################################
-        #Espacio para enviar error a PowerTracking
-        ##########################################
+        estado = "USBError"
+        led_status(estado,stat)
+        ###########################################
+        #Espacio para enviar error a PowerTracking#
+        ###########################################
         error_USB = 0
     error_TEST = 0
     while True:
@@ -221,7 +246,15 @@ while True:
               error_WUN = error_WUN + 1
               if error_WUN == 10:
                 logger.error('No se esta enviando correctamente a WUN')
+                estado = "SENDError"
+                led_status(estado,stat)
+                ###########################################
+                #Espacio para enviar error a PowerTracking#
+                ###########################################
                 break
+            else:
+              estado = "Envio"
+              led_status(estado,stat)
           else:
             error_LOOP = error_LOOP + 1
             logger.warning('Recepcion incorrecta de la informacion')
@@ -235,4 +268,3 @@ while True:
           break
   except:
     pass
-
