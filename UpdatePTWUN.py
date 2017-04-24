@@ -6,7 +6,6 @@ def updatePT(user, password):
   requestUrl = "http://" + user + ":" + password + "@track-mypower.tk/measurements/meteorological/new/wunderground"
   u = requests.get(requestUrl)
   response = u.text
-  print(requestUrl)
   return response
 
 while True:
