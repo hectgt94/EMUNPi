@@ -43,8 +43,11 @@ YOUTUBE_URL='rtmp://a.rtmp.youtube.com/live2'
 YOUTUBE_KEY='9zxz-ms0y-8g6f-aybe'
 
 #Status of Camera network connection
-STATUS_VIDEO=$(curl -sL -w "%{http_code}" --max-time 1 "http://$USER:$PASS@$IP:$PORT/$VIDEO_PATH" -o /dev/null)
-STATUS_AUDIO=$(curl -sL -w "%{http_code}" --max-time 1 "http://$USER:$PASS@$IP:$PORT/$AUDIO_PATH" -o /dev/null)
+STATUS_VIDEO="$(curl -sL -w '%{http_code}' --max-time 1 'http://$USER:$PASS@$IP:$PORT/$VIDEO_PATH' -o /dev/null)"
+STATUS_AUDIO="$(curl -sL -w '%{http_code}' --max-time 1 'http://$USER:$PASS@$IP:$PORT/$AUDIO_PATH' -o /dev/null)"
+
+echo $STATUS_VIDEO
+echo $STATUS_AUDIO
 
 echo "Validating video and audio sources..."
 
