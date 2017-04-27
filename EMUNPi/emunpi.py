@@ -115,14 +115,14 @@ def decodeMeteo(resp):
 ######################################################
 # Envio de datos a WeatherUnderground
 
-def envioWUN(data):
+def envioWUN(data,wun_user,wun_pass,wun_freq):
   interval = 10
   requestUrl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php'
   nowUtc = datetime.datetime.utcnow()
   parameters = {
     'action'         : 'updateraw',
-    'ID'             : 'IATLNTIC4',                              # ID de la estacion en wunderground.com
-    'PASSWORD'       : 'mauro97',                                # Contrasena wunderground.com
+    'ID'             : wun_user,                                 # ID de la estacion en wunderground.com
+    'PASSWORD'       : wun_pass,                                 # Contrasena wunderground.com
     'dateutc'        : nowUtc.strftime( '%Y-%m-%d %H:%M:%S' ),   # Estampa de tiempo
     'tempf'          : data['out_temp'],                         # Temperatura externa [F]
     'humidity'       : data['out_hum'],                          # Porcentaje de humedad [0-100%]
@@ -150,7 +150,7 @@ def envioWUN(data):
     print "error."
     print 'url:', u.url
     print 'response:', response
-
+  time.sleep(int(wun_freq))
   return response
 
 ######################################################
@@ -191,6 +191,20 @@ def led_status(estado,stat):
     GPIO.output(stat, 0)
 
 ######################################################
+# Leer datos de configuracion
+
+def config_data()
+  f = open("config.txt","r")
+  lines = f.readlines()
+  wun_user = lines[13].replace('\n','')
+  wun_pass = lines[15].replace('\n','')
+  wun_freq = lines[17].replace('\n','')
+  wun = [wun_user,wun_pass,wun_freq]
+  return wun
+
+######################################################
+# Codigo fuente
+
 GPIO.setmode(GPIO.BCM)
 stat=10
 GPIO.setup(stat, GPIO.IN)
@@ -201,6 +215,7 @@ print("Inicializando programa...")
 time.sleep(5)
 while True:
   error_USB = 0
+  wun_data = config_data()
   try:
     try:
       logger.info('Probando conexion fisica USB...')
@@ -240,7 +255,7 @@ while True:
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
             logger.info('Enviando a WUN...')
-            resWun = envioWUN(weath_data)
+            resWun = envioWUN(weath_data,wun[0],wun[1],wun[2])
             if not('success' in resWun):
               logger.warning('Envio incorrecto a WUN')
               error_WUN = error_WUN + 1
