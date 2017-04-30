@@ -14,16 +14,6 @@ from collections import OrderedDict
 ######################################################
 #Configuracion del logfile
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-
-file_handler = logging.FileHandler('emunpi.log')
-file_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
-
 ######################################################
 # Configuracion del puerto serial USB
 
@@ -115,7 +105,7 @@ def decodeMeteo(resp):
 ######################################################
 # Envio de datos a WeatherUnderground
 
-def envioWUN(data,wun_user,wun_pass,wun_freq):
+def envioWUN(data,wun_user,wun_pass):
   interval = 10
   requestUrl = 'http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php'
   nowUtc = datetime.datetime.utcnow()
@@ -150,7 +140,6 @@ def envioWUN(data,wun_user,wun_pass,wun_freq):
     print "error."
     print 'url:', u.url
     print 'response:', response
-  time.sleep(int(wun_freq))
   return response
 
 ######################################################
@@ -193,12 +182,12 @@ def led_status(estado,stat):
 ######################################################
 # Leer datos de configuracion
 
-def config_data()
-  f = open("config.txt","r")
+def config_data():
+  f = open("/home/pi/EMUNPi/Config/config.txt","r")
   lines = f.readlines()
-  wun_user = lines[13].replace('\n','')
-  wun_pass = lines[15].replace('\n','')
-  wun_freq = lines[17].replace('\n','')
+  wun_user = lines[15].replace('\n','')
+  wun_pass = lines[17].replace('\n','')
+  wun_freq = lines[19].replace('\n','')
   wun = [wun_user,wun_pass,wun_freq]
   return wun
 
@@ -207,7 +196,7 @@ def config_data()
 
 GPIO.setmode(GPIO.BCM)
 stat=10
-GPIO.setup(stat, GPIO.IN)
+GPIO.setup(stat, GPIO.OUT)
 
 dev = "/dev/ttyUSB0"
 baud = 19200
@@ -216,29 +205,26 @@ time.sleep(5)
 while True:
   error_USB = 0
   wun_data = config_data()
+  print(wun_data)
   try:
     try:
-      logger.info('Probando conexion fisica USB...')
       port = configPrt(dev, baud)
     except:
       error_USB = error_USB + 1
+      estado = "USBError"
+      led_status(estado,stat)
       if error_USB < 100:
-        logger.warning('Intentar cambio de puerto USB')
         if dev == "/dev/ttyUSB0":
           dev = "/dev/ttyUSB1"
         else:
           dev = "/dev/ttyUSB0"
       else:
-        logger.error('USB no conectado')
-        estado = "USBError"
-        led_status(estado,stat)
         ###########################################
         #Espacio para enviar error a PowerTracking#
         ###########################################
         error_USB = 0
     error_TEST = 0
     while True:
-      logger.info('Probando conexion TEST...')
       data_req = "TEST\n"
       resp = leerInfo(data_req)
       if "TEST" in resp:
@@ -248,21 +234,17 @@ while True:
           try:
             subprocess.call("./tiempo.sh")
           except:
-            logger.error('Error al setear fecha y hora')
-          logger.info('Extrayendo informacion LOOP...')
+            pass
           data_req = "LPS 2 1\n"
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            logger.info('Enviando a WUN...')
-            resWun = envioWUN(weath_data,wun[0],wun[1],wun[2])
+            resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
-              logger.warning('Envio incorrecto a WUN')
               error_WUN = error_WUN + 1
+              estado = "SENDError"
+              led_status(estado,stat)
               if error_WUN == 10:
-                logger.error('No se esta enviando correctamente a WUN')
-                estado = "SENDError"
-                led_status(estado,stat)
                 ###########################################
                 #Espacio para enviar error a PowerTracking#
                 ###########################################
@@ -270,16 +252,14 @@ while True:
             else:
               estado = "Envio"
               led_status(estado,stat)
+              time.sleep(int(wun_data[2]))
           else:
             error_LOOP = error_LOOP + 1
-            logger.warning('Recepcion incorrecta de la informacion')
             if error_LOOP == 10:
-              logger.error('No se esta recibiendo correctamente la informacion')
               break
       else:
         error_TEST = error_TEST + 1
         if error_TEST == 3:
-          logger.warning('No se pudo probar la conexion')
           break
   except:
     pass

@@ -17,7 +17,7 @@ IATLNTIC4
 -pass_WUN:
 mauro97
 -frec_WUN:
-240
+10
 
 ** Envío a Track My Power **
 -user_TMP:
