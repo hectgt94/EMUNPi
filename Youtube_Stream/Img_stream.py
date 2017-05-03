@@ -3,6 +3,7 @@ import time
 import urllib
 import get_ip
 import json
+import subprocess
 
 #FILE INFO
 PATH = "snapshot.jpg"
@@ -16,32 +17,36 @@ headers = {'Content-type': 'application/json'}
 IP = "0.0.0.0"
 attempt = 1
 
-while IP == "0.0.0.0":
-    print("Attempt " + str(attempt) + ": Finding IP...")
-    IP_RESPONSE = requests.post(url, data=json.dumps(data), headers=headers)
-    IP = get_ip.from_camera(IP_RESPONSE.text)
-    time.sleep(10)
-    attempt = attempt + 1
-
-print("Camera's IP found: " + IP)
-PORT = '8080'
-USER = 'admin'
-PASS = 'YWRtaW4xMjM0'
-FILENAME = 'snapshot.jpg'
-IMG_PATH='stream/' + FILENAME
-REQUEST_URL = "http://" + USER + ":" + PASS + "@" + IP + ":" + PORT +"/" + IMG_PATH
-SAVE_URL = 'http://admin:uninorte@track-mypower.tk/stream/new?url='
-
-#INITIATE STREAMING
 while True:
-    try:
-        urllib.urlretrieve(REQUEST_URL, FILENAME)
-        post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
-        img_response = json.loads(post_img.text)
-        img_url = str(img_response["data"]["img_url"]).replace('\\', '')
-        r=requests.get(SAVE_URL+img_url)
-        print(img_url)
-        print("-------------------")
-        time.sleep(0.4)
-    except:
-        pass
+    while IP == "0.0.0.0":
+        print("Attempt " + str(attempt) + ": Finding IP...")
+        IP_RESPONSE = requests.post(url, data=json.dumps(data), headers=headers)
+        IP = get_ip.from_camera(IP_RESPONSE.text)
+        time.sleep(10)
+        attempt = attempt + 1
+
+    print("Camera's IP found: " + IP)
+    PORT = '8080'
+    USER = 'admin'
+    PASS = 'YWRtaW4xMjM0'
+    FILENAME = 'snapshot.jpg'
+    IMG_PATH='stream/' + FILENAME
+    REQUEST_URL = "http://" + USER + ":" + PASS + "@" + IP + ":" + PORT +"/" + IMG_PATH
+    SAVE_URL = 'http://admin:uninorte@track-mypower.tk/stream/new?url='
+
+    #INITIATE STREAMING
+    while True:
+        try:
+            try:
+                urllib.urlretrieve(REQUEST_URL, FILENAME)
+            except IOError as e:
+                break
+            post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
+            img_response = json.loads(post_img.text)
+            img_url = str(img_response["data"]["img_url"]).replace('\\', '')
+            r=requests.get(SAVE_URL+img_url)
+            print(img_url)
+            print("-------------------")
+            time.sleep(0.4)
+        except:
+            break
