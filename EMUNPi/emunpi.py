@@ -11,8 +11,6 @@ import logging
 import RPi.GPIO as GPIO
 from collections import OrderedDict
 
-######################################################
-#Configuracion del logfile
 
 ######################################################
 # Configuracion del puerto serial USB
@@ -239,6 +237,8 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
+            #if weath_data['out_temp'] >= 150:
+              #break
             resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
               error_WUN = error_WUN + 1
