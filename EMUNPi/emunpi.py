@@ -133,6 +133,7 @@ def envioWUN(data,wun_user,wun_pass):
   u = requests.post(requestUrl, data=parameters)
   response = u.text
   if "success" in response:
+    print (requestUrl)
     print "success."
   else:
     print "error."
