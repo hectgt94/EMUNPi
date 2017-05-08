@@ -6,20 +6,21 @@ GPIO.setup(27, GPIO.IN)
 GPIO.setup(3, GPIO.OUT)
 
 message = "Energia reestablecida"
+print(message)
 
-while True:
-  GPIO.output(3, 1)
+if GPIO.input(27):
+  print("CARGADOR")
+  ##AQUI SE ENVIA A TMP.TK
+else:
+  print("BATERIA")
+  ##AQUI SE ENVIA A TMP.TK
 
 while True:
   try:
     if GPIO.input(27):
-      print("CARGADOR")
-      GPIO.output(3, 1)
-      ##### AQUI SE ENVIA LA NOTIFICACION DE RED A TRACK-MYPOWER.TK
-    else:
-      print("BATERIA")
       GPIO.output(3, 0)
-      ##### AQUI SE ENVIA LA NOTIFICACION DE BAT A TRACK-MYPOWER.TK
+    else:
+      GPIO.output(3, 1)
     time.sleep(0.01)
   except:
     pass  

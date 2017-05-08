@@ -133,7 +133,6 @@ def envioWUN(data,wun_user,wun_pass):
   u = requests.post(requestUrl, data=parameters)
   response = u.text
   if "success" in response:
-    print (requestUrl)
     print "success."
   else:
     print "error."
@@ -204,7 +203,6 @@ time.sleep(5)
 while True:
   error_USB = 0
   wun_data = config_data()
-  print(wun_data)
   try:
     try:
       port = configPrt(dev, baud)
@@ -238,8 +236,8 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            #if weath_data['out_temp'] >= 150:
-              #break
+            if (float(weath_data['out_temp']) >= 150):
+              break
             resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
               error_WUN = error_WUN + 1
