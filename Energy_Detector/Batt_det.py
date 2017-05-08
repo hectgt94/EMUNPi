@@ -19,12 +19,12 @@ print(message)
 
 if GPIO.input(27):
   print("CARGADOR")
-  notif1 = notif(1,2,1)
+  notif1 = notif(0,1,0)
   print(notif1)
   ##AQUI SE ENVIA A TMP.TK
 else:
   print("BATERIA")
-  notif1 = notif(1,1,1)
+  notif1 = notif(0,0,0)
   print(notif1)
   ##AQUI SE ENVIA A TMP.TK
 

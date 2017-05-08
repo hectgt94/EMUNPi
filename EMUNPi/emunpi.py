@@ -214,14 +214,18 @@ print("Inicializando programa...")
 time.sleep(5)
 error_USB = 0
 TMP_notf = 0
+WUN_notf = 0
 while True:
   wun_data = config_data()
   try:
     try:
       port = configPrt(dev, baud)
       if TMP_notf == 1:
-        notif2 = notif(1,3,1)
+        notif2 = notif(1,3,0)
         TMP_notf = 0
+        ###########################################
+        #Espacio para enviar error a PowerTracking#
+        ###########################################
     except:
       error_USB = error_USB + 1
       estado = "USBError"
@@ -262,22 +266,34 @@ while True:
               error_WUN = error_WUN + 1
               estado = "SENDError"
               led_status(estado,stat)
-              if error_WUN == 10:
+              if error_WUN >= 10:
+                if WUN_notf == 0:
+                  notif3 = notif(2,4,1)
+                  WUN_notf = 1
                 ###########################################
                 #Espacio para enviar error a PowerTracking#
                 ###########################################
+                error_WUN = 0
                 break
             else:
+              if WUN_notf == 1:
+                notif3 = notif(2,5,0)
+                WUN_notf = 0
+                ###########################################
+                #Espacio para enviar error a PowerTracking#
+                ###########################################
               estado = "Envio"
               led_status(estado,stat)
               time.sleep(int(wun_data[2]))
           else:
             error_LOOP = error_LOOP + 1
             if error_LOOP == 10:
+              error_LOOP = 0
               break
       else:
         error_TEST = error_TEST + 1
         if error_TEST == 3:
+          error_TEST = 0
           break
   except:
     pass
