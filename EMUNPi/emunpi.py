@@ -190,6 +190,18 @@ def config_data():
   return wun
 
 ######################################################
+# Notificacion a Track-My-Power
+
+def notif(estado, msg, tp):
+  titles = ["System Reboot","Davis Console","WeatherUnderground"]
+  messages = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detected","USB connection restored","Problem sending to WUN","Data send to WUN"]
+  notif_type = ["INFO","ERROR"]
+
+  notification = [titles[estado], messages[msg], notif_type[tp]]
+
+  return notification
+
+######################################################
 # Codigo fuente
 
 GPIO.setmode(GPIO.BCM)
@@ -201,11 +213,16 @@ baud = 19200
 print("Inicializando programa...")
 time.sleep(5)
 while True:
+  TMP_notf = 0
   error_USB = 0
   wun_data = config_data()
   try:
     try:
       port = configPrt(dev, baud)
+      if TMP_notf == 1:
+        notif2 = notif(2,4,2)
+        TMP_notf = 0
+        print(notif2)
     except:
       error_USB = error_USB + 1
       estado = "USBError"
@@ -216,9 +233,13 @@ while True:
         else:
           dev = "/dev/ttyUSB0"
       else:
-        ###########################################
-        #Espacio para enviar error a PowerTracking#
-        ###########################################
+        if TMP_notf == 0:
+          notif2 = notif(2,3,2)
+          TMP_notf = 1
+          print(notif2)
+          ###########################################
+          #Espacio para enviar error a PowerTracking#
+          ###########################################
         error_USB = 0
     error_TEST = 0
     while True:
