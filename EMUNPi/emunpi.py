@@ -212,31 +212,29 @@ dev = "/dev/ttyUSB0"
 baud = 19200
 print("Inicializando programa...")
 time.sleep(5)
+error_USB = 0
+TMP_notf = 0
 while True:
-  TMP_notf = 0
-  error_USB = 0
   wun_data = config_data()
   try:
     try:
       port = configPrt(dev, baud)
       if TMP_notf == 1:
-        notif2 = notif(2,4,2)
+        notif2 = notif(1,3,1)
         TMP_notf = 0
-        print(notif2)
     except:
       error_USB = error_USB + 1
       estado = "USBError"
       led_status(estado,stat)
-      if error_USB < 100:
+      if error_USB < 10:
         if dev == "/dev/ttyUSB0":
           dev = "/dev/ttyUSB1"
         else:
           dev = "/dev/ttyUSB0"
       else:
         if TMP_notf == 0:
-          notif2 = notif(2,3,2)
+          notif2 = notif(1,2,1)
           TMP_notf = 1
-          print(notif2)
           ###########################################
           #Espacio para enviar error a PowerTracking#
           ###########################################
