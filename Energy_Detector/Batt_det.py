@@ -11,26 +11,24 @@ def notif(estado, msg, tp):
   return notification
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.IN)
+GPIO.setup(14, GPIO.IN)
 GPIO.setup(3, GPIO.OUT)
 
 message = "Energia reestablecida"
 print(message)
 
-if GPIO.input(27):
+if GPIO.input(14):
   print("CARGADOR")
   notif1 = notif(0,1,0)
-  print(notif1)
   ##AQUI SE ENVIA A TMP.TK
 else:
   print("BATERIA")
   notif1 = notif(0,0,0)
-  print(notif1)
   ##AQUI SE ENVIA A TMP.TK
 
 while True:
   try:
-    if GPIO.input(27):
+    if GPIO.input(14):
       GPIO.output(3, 0)
     else:
       GPIO.output(3, 1)

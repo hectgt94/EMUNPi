@@ -259,7 +259,7 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            if (float(weath_data['out_temp']) >= 150 || float(weath_data['out_hum']) >= 100 || float(weath_data['solar_rad']) >= 1500 || float(weath_data['uv']) >= 50):
+            if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 50):
               break
             resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
