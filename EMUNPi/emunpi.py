@@ -279,6 +279,7 @@ while True:
     while True:
       data_req = "TEST\n"
       resp = leerInfo(data_req)
+      print(resp)    #############################
       if "TEST" in resp:
         error_LOOP = 0
         error_WUN  = 0
