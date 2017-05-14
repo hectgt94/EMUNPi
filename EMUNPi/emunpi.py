@@ -127,7 +127,6 @@ def decodeMeteo(resp):
   data['daily_rain'] = "%.2f" % daily_rain
 
   print("Data decoded...")
-  print(data)
   return data
 
 ######################################################
@@ -292,21 +291,26 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            print(weath_data)     ############################
             if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 50):
               error_PWS = error_PWS + 1
               if error_PWS >= 5:
                 if PWS_notf == 0:
-                  notif4 = notif(2,6,1)
+                  notif4 = notif(1,6,1)
                   PWS_notf = 1
                   send_notf(notif4[0],notif4[1],notif4[2])
+                  ###########################################
+                  #Espacio para enviar error a PowerTracking#
+                  ###########################################
                 error_PWS = 0
               break
             else:
               if PWS_notf == 1:
-                notif4 = notif(2,7,0)
+                notif4 = notif(1,7,0)
                 PWS_notf = 0
                 send_notf(notif4[0],notif4[1],notif4[2])
+                ###########################################
+                #Espacio para enviar error a PowerTracking#
+                ###########################################
             resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
               error_WUN = error_WUN + 1
