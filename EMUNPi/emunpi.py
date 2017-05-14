@@ -13,6 +13,9 @@ from collections import OrderedDict
 import sys
 from bs4 import BeautifulSoup
 
+######################################################
+# Envio de notificaciones a Track-mypower.tk
+
 def send_notf(title,text,type_):
   URL = 'http://track-mypower.tk/login'
   NOTF_URL = 'http://admin:uninorte@track-mypower.tk/source/RaspberryPi/notifications/new'
