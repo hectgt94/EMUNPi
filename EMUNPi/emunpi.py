@@ -276,14 +276,13 @@ while True:
           ###########################################
         error_USB = 0
     error_TEST = 0
+    error_LOOP = 0
+    error_WUN  = 0
+    error_PWS  = 0
     while True:
       data_req = "TEST\n"
       resp = leerInfo(data_req)
-      print(resp)    #############################
       if "TEST" in resp:
-        error_LOOP = 0
-        error_WUN  = 0
-        error_PWS  = 0
         while True:
           try:
             subprocess.call("./tiempo.sh")
@@ -293,6 +292,7 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
+            print(weath_data)     ############################
             if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 50):
               error_PWS = error_PWS + 1
               if error_PWS >= 5:
