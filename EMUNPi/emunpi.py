@@ -10,7 +10,33 @@ import requests
 import logging
 import RPi.GPIO as GPIO
 from collections import OrderedDict
+import sys
+from bs4 import BeautifulSoup
 
+def send_notf(title,text,type_):
+  URL = 'http://track-mypower.tk/login'
+  NOTF_URL = 'http://admin:uninorte@track-mypower.tk/source/RaspberryPi/notifications/new'
+
+  log_data = {
+    'session[email]'    : 'raspberrypi',
+    'session[password]' : 'raspberrypi1234',
+    'authenticity_token': ' '
+  }
+
+  notf_data = {
+    'type'  : type_,
+    'title' : title,
+    'text'  : text
+  }
+
+  with requests.Session() as s:
+    log    = s.get(URL)
+    cookie = s.cookies
+    soup   = BeautifulSoup(log.content)
+    token  = soup.select('meta[name="csrf-token"]')[0]['content']
+    log_data['authenticity_token'] = token
+    log1   = s.post(URL, cookies=cookie, data=log_data)
+    notf   = s.get(NOTF_URL, params=notf_data)
 
 ######################################################
 # Configuracion del puerto serial USB
@@ -192,12 +218,12 @@ def config_data():
 ######################################################
 # Notificacion a Track-My-Power
 
-def notif(estado, msg, tp):
+def notif(title, text, type_):
   titles = ["System Reboot","Davis Console","WeatherUnderground"]
   messages = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detected","USB connection restored","Problem sending to WUN","Data send to WUN"]
-  notif_type = ["INFO","ERROR"]
+  notif_type = ["info","error","warning"]
 
-  notification = [titles[estado], messages[msg], notif_type[tp]]
+  notification = [titles[title], messages[text], notif_type[type_]]
 
   return notification
 
@@ -223,9 +249,7 @@ while True:
       if TMP_notf == 1:
         notif2 = notif(1,3,0)
         TMP_notf = 0
-        ###########################################
-        #Espacio para enviar error a PowerTracking#
-        ###########################################
+        send_notf(notif2[0],notif2[1],notif2[2])
     except:
       error_USB = error_USB + 1
       estado = "USBError"
@@ -239,6 +263,7 @@ while True:
         if TMP_notf == 0:
           notif2 = notif(1,2,1)
           TMP_notf = 1
+          send_notf(notif2[0],notif2[1],notif2[2])
           ###########################################
           #Espacio para enviar error a PowerTracking#
           ###########################################
@@ -270,15 +295,17 @@ while True:
                 if WUN_notf == 0:
                   notif3 = notif(2,4,1)
                   WUN_notf = 1
-                ###########################################
-                #Espacio para enviar error a PowerTracking#
-                ###########################################
+                  send_notf(notif3[0],notif3[1],notif3[2])
+                  ###########################################
+                  #Espacio para enviar error a PowerTracking#
+                  ###########################################
                 error_WUN = 0
                 break
             else:
               if WUN_notf == 1:
                 notif3 = notif(2,5,0)
                 WUN_notf = 0
+                send_notf(notif3[0],notif3[1],notif3[2])
                 ###########################################
                 #Espacio para enviar error a PowerTracking#
                 ###########################################
