@@ -223,7 +223,7 @@ def config_data():
 
 def notif(title, text, type_):
   titles = ["System Reboot","Davis Console","WeatherUnderground"]
-  messages = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detected","USB connection restored","Problem sending to WUN","Data send to WUN"]
+  messages = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detected","USB connection restored","Problem sending to WUN","Data send to WUN","Console is not receiving from PWS","Console is receiving from PWS"]
   notif_type = ["info","error","warning"]
 
   notification = [titles[title], messages[text], notif_type[type_]]
@@ -244,6 +244,9 @@ time.sleep(5)
 error_USB = 0
 TMP_notf = 0
 WUN_notf = 0
+PWS_notf = 0
+
+# Ciclo principal
 while True:
   wun_data = config_data()
   try:
@@ -277,7 +280,8 @@ while True:
       resp = leerInfo(data_req)
       if "TEST" in resp:
         error_LOOP = 0
-        error_WUN = 0
+        error_WUN  = 0
+        error_PWS  = 0
         while True:
           try:
             subprocess.call("./tiempo.sh")
@@ -288,7 +292,19 @@ while True:
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
             if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 50):
+              error_PWS = error_PWS + 1
+              if error_PWS >= 5:
+                if PWS_notf == 0:
+                  notif4 = notif(2,6,1)
+                  PWS_notf = 1
+                  send_notf(notif4[0],notif4[1],notif4[2])
+                error_PWS = 0
               break
+            else:
+              if PWS_notf == 1:
+                notif4 = notif(2,7,0)
+                PWS_notf = 0
+                send_notf(notif4[0],notif4[1],notif4[2])
             resWun = envioWUN(weath_data,wun_data[0],wun_data[1])
             if not('success' in resWun):
               error_WUN = error_WUN + 1
