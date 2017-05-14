@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-mport sys
+import sys
 import requests
 from bs4 import BeautifulSoup
 
