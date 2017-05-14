@@ -127,7 +127,7 @@ def decodeMeteo(resp):
   data['daily_rain'] = "%.2f" % daily_rain
 
   print("Data decoded...")
-  print(Data)
+  print(data)
   return data
 
 ######################################################
