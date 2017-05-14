@@ -14,7 +14,7 @@ import sys
 from bs4 import BeautifulSoup
 
 ######################################################
-# Envio de notificaciones a Track-mypower.tk
+# Notification send to Track-mypower.tk
 
 def send_notf(title,text,type_):
   URL = 'http://track-mypower.tk/login'
@@ -42,7 +42,7 @@ def send_notf(title,text,type_):
     notf   = s.get(NOTF_URL, params=notf_data)
 
 ######################################################
-# Configuracion del puerto serial USB
+# USB seria port configuration ---Baud Rate: 19600---
 
 def configPrt(device, baud):
   port =serial.Serial(
@@ -60,7 +60,7 @@ def configPrt(device, baud):
   return port
 
 ######################################################
-# Extrauer datos de la consola dependiendo del REQUEST hecho
+# Data extract from Davis Console
 
 def leerInfo(data_req):
   while True:
@@ -75,28 +75,28 @@ def leerInfo(data_req):
   return resp
 
 ######################################################
-#Decodificacion de los datos LOOP extraidos
+# LOOP data decodification ---Only on Davis Vantage Pro 2 Vue---
 
 def decodeMeteo(resp):
 
   data = OrderedDict()
   raw = resp.encode('hex')
   # Separar datos
-  i = raw.index("4c4f4f")                     #indice donde empieza la trama de 100 bytes LOOP2
+  i = raw.index("4c4f4f")                     
 
-  bar        = (raw[i+16:i+18] + raw[i+14:i+16])             # Presion Barometrica
-  in_temp    = (raw[i+20:i+22] + raw[i+18:i+20])             # Temperatura Interna
-  in_hum     = (raw[i+22:i+24])                              # Humedad Interna
-  out_temp   = (raw[i+26:i+28] + raw[i+24:i+26])             # Temperatura Externa
-  wind_sp    = (raw[i+28:i+30])                              # Velocidad del viento
-  wind_dir   = (raw[i+34:i+36] + raw[i+32:i+34])             # Direccion del viento
-  wind_gust  = (raw[i+46:i+48] + raw[i+44:i+46])             # Rafagas de viento
-  dew_pnt    = (raw[i+62:i+64] + raw[i+60:i+62])             # Punto de rocio
-  out_hum    = (raw[i+66:i+68])                              # Humedad Externa
-  rain_rate  = (raw[i+84:i+86] + raw[i+82:i+84])             # Tasa de lluvia
-  uv         = (raw[i+86:i+88])                              # Indice UV
-  solar_rad  = (raw[i+90:i+92] + raw[i+88:i+90])             # Radiacion Solar
-  daily_rain = (raw[i+102:i+104] + raw[i+100:i+102])         # Lluvia diaria
+  bar        = (raw[i+16:i+18] + raw[i+14:i+16])             # Barometric pressure
+  in_temp    = (raw[i+20:i+22] + raw[i+18:i+20])             # Inside temperature
+  in_hum     = (raw[i+22:i+24])                              # Inside humidity
+  out_temp   = (raw[i+26:i+28] + raw[i+24:i+26])             # Outside temperature
+  wind_sp    = (raw[i+28:i+30])                              # Wind speed
+  wind_dir   = (raw[i+34:i+36] + raw[i+32:i+34])             # Wind direction
+  wind_gust  = (raw[i+46:i+48] + raw[i+44:i+46])             # Wind gust
+  dew_pnt    = (raw[i+62:i+64] + raw[i+60:i+62])             # Dew point
+  out_hum    = (raw[i+66:i+68])                              # Outside humidity
+  rain_rate  = (raw[i+84:i+86] + raw[i+82:i+84])             # Rain rate
+  uv         = (raw[i+86:i+88])                              # UV index
+  solar_rad  = (raw[i+90:i+92] + raw[i+88:i+90])             # Solar radiation
+  daily_rain = (raw[i+102:i+104] + raw[i+100:i+102])         # Daily rain
 
   bar        = float.fromhex(bar)/1000
   in_temp    = float.fromhex(in_temp)/10
@@ -130,7 +130,7 @@ def decodeMeteo(resp):
   return data
 
 ######################################################
-# Envio de datos a WeatherUnderground
+# Data send to WeatherUnderground
 
 def envioWUN(data,wun_user,wun_pass):
   interval = 10
@@ -138,20 +138,20 @@ def envioWUN(data,wun_user,wun_pass):
   nowUtc = datetime.datetime.utcnow()
   parameters = {
     'action'         : 'updateraw',
-    'ID'             : wun_user,                                 # ID de la estacion en wunderground.com
-    'PASSWORD'       : wun_pass,                                 # Contrasena wunderground.com
-    'dateutc'        : nowUtc.strftime( '%Y-%m-%d %H:%M:%S' ),   # Estampa de tiempo
-    'tempf'          : data['out_temp'],                         # Temperatura externa [F]
-    'humidity'       : data['out_hum'],                          # Porcentaje de humedad [0-100%]
-    'dewptf'         : data['dew_pnt'],                          # Punto de rocio [F]
-    'baromin'        : data['bar'],                              # Presion barometrica [inches]
-    'windspeedmph'   : data['wind_sp'],                          # velocidad del viendo [mph]
-    'winddir'        : data['wind_dir'],                         # Direccion del viento [0-360]
-    'rainin'         : data['rain_rate'],                        # Lluvia en la ultima hora
-    'dailyrainin'    : data['daily_rain'],                       # Lluvia en el dia
-    'solarradiation' : data['solar_rad'],                        # Radiacion solar
-    'UV'             : data['uv'],                               # Radiacion UV
-    'windgustmph'    : data['wind_gust']                         # Rafagas de viento
+    'ID'             : wun_user,                                 # PWS ID set at wunderground.com
+    'PASSWORD'       : wun_pass,                                 # Password set at wunderground.com
+    'dateutc'        : nowUtc.strftime( '%Y-%m-%d %H:%M:%S' ),   # Timestamp
+    'tempf'          : data['out_temp'],                         # Outside temperature [F]
+    'humidity'       : data['out_hum'],                          # Outside humidity [0-100%]
+    'dewptf'         : data['dew_pnt'],                          # Dew point [F]
+    'baromin'        : data['bar'],                              # Barometric pressure [inches]
+    'windspeedmph'   : data['wind_sp'],                          # Wind speed [mph]
+    'winddir'        : data['wind_dir'],                         # Wind direction [0-360]
+    'rainin'         : data['rain_rate'],                        # Rain rate [last hour]
+    'dailyrainin'    : data['daily_rain'],                       # Daily rain [in]
+    'solarradiation' : data['solar_rad'],                        # Solar radiation [w/m2]
+    'UV'             : data['uv'],                               # UV index
+    'windgustmph'    : data['wind_gust']                         # Wind gust [mph]
   }
   if interval <= 10:
     parameters['realtime'] = 1
@@ -170,14 +170,14 @@ def envioWUN(data,wun_user,wun_pass):
   return response
 
 ######################################################
-#Parpadeo del LED dependiendo del estado
+# LED GPIO status
 
-def led_status(estado,stat):
-  if (estado == "Envio"):
+def led_status(state,stat):
+  if (state == "Envio"):
     GPIO.output(stat, 1)
     time.sleep(1)
     GPIO.output(stat, 0)
-  elif (estado == "USBError"):
+  elif (state == "USBError"):
     GPIO.output(stat, 1)
     time.sleep(0.2)
     GPIO.output(stat, 0)
@@ -189,7 +189,7 @@ def led_status(estado,stat):
     GPIO.output(stat, 1)
     time.sleep(0.2)
     GPIO.output(stat, 0)
-  elif (estado == "SENDError"):
+  elif (state == "SENDError"):
     GPIO.output(stat, 1)
     time.sleep(0.1)
     GPIO.output(stat, 0)
@@ -207,7 +207,7 @@ def led_status(estado,stat):
     GPIO.output(stat, 0)
 
 ######################################################
-# Leer datos de configuracion
+# Configuration data from config.txt
 
 def config_data():
   f = open("/home/pi/EMUNPi/Config/config.txt","r")
@@ -219,7 +219,7 @@ def config_data():
   return wun
 
 ######################################################
-# Notificacion a Track-My-Power
+# Notification set to Track-My-Power
 
 def notif(title, text, type_):
   titles = ["System Reboot","Davis Console","WeatherUnderground"]
@@ -231,7 +231,7 @@ def notif(title, text, type_):
   return notification
 
 ######################################################
-# Codigo fuente
+# Main code
 
 GPIO.setmode(GPIO.BCM)
 stat=10
@@ -246,7 +246,7 @@ TMP_notf = 0
 WUN_notf = 0
 PWS_notf = 0
 
-# Ciclo principal
+# Main cicle
 while True:
   wun_data = config_data()
   try:

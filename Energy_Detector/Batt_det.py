@@ -4,6 +4,9 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 
+######################################################
+# Notification set to Track-My-Power
+
 def notif(title, text, type_):
   titles     = ["System Reboot","Davis Console","WeatherUnderground"]
   messages   = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detectec","USB connection restored","Problem sending to WUN","Data send to WUN"]
@@ -12,6 +15,9 @@ def notif(title, text, type_):
   notification = [titles[title], messages[text], notif_type[type_]]
   
   return notification
+
+######################################################
+# Notification send to Track-mypower.tk
 
 def send_notf(title,text,type_):
   URL = 'http://track-mypower.tk/login'
@@ -38,21 +44,19 @@ def send_notf(title,text,type_):
     log1   = s.post(URL, cookies=cookie, data=log_data)
     notf   = s.get(NOTF_URL, params=notf_data)
 
+######################################################
+# Main code
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(14, GPIO.IN)
 GPIO.setup(3, GPIO.OUT)
 
-message = "Energia reestablecida"
-print(message)
 
 if GPIO.input(14):
-  print("CARGADOR")
   notif1 = notif(0,1,0)
   send_notf(notif1[0],notif1[1],notif1[2])
   ##AQUI SE ENVIA A TMP.TK
 else:
-  print("BATERIA")
   notif1 = notif(0,0,2)
   send_notf(notif1[0],notif1[1],notif1[2])
   ##AQUI SE ENVIA A TMP.TK
