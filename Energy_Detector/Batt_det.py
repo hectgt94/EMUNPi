@@ -1,5 +1,8 @@
 import RPi.GPIO as GPIO
 import time
+mport sys
+import requests
+from bs4 import BeautifulSoup
 
 def notif(title, text, type_):
   titles     = ["System Reboot","Davis Console","WeatherUnderground"]
