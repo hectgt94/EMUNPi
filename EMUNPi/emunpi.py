@@ -291,7 +291,7 @@ while True:
           resp = leerInfo(data_req)
           if "LOO" in resp:
             weath_data = decodeMeteo(resp)
-            if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 50):
+            if (float(weath_data['out_temp']) >= 150 or float(weath_data['out_hum']) >= 100 or float(weath_data['solar_rad']) >= 1500 or float(weath_data['uv']) >= 20):
               error_PWS = error_PWS + 1
               if error_PWS >= 5:
                 if PWS_notf == 0:

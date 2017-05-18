@@ -22,6 +22,7 @@ while True:
         print("Attempt " + str(attempt) + ": Finding IP...")
         IP_RESPONSE = requests.post(url, data=json.dumps(data), headers=headers)
         IP = get_ip.from_camera(IP_RESPONSE.text)
+        print(IP_RESPONSE.text)
         time.sleep(10)
         attempt = attempt + 1
 
@@ -39,7 +40,7 @@ while True:
         try:
             try:
                 urllib.urlretrieve(REQUEST_URL, FILENAME)
-            except IOError as e:
+            except:
                 break
             post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
             img_response = json.loads(post_img.text)
