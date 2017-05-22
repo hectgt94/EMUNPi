@@ -107,10 +107,10 @@ def decodeMeteo(resp):
   wind_gust  = float.fromhex(wind_gust)
   dew_pnt    = float.fromhex(dew_pnt)
   out_hum    = float.fromhex(out_hum)
-  rain_rate  = float.fromhex(rain_rate)
+  rain_rate  = float.fromhex(rain_rate)*0.01
   uv         = float.fromhex(uv)/10
   solar_rad  = float.fromhex(solar_rad)
-  daily_rain = float.fromhex(daily_rain)
+  daily_rain = float.fromhex(daily_rain)*0.01
 
   data['bar']        = "%.2f" % bar
   data['in_temp']    = "%.2f" % in_temp
