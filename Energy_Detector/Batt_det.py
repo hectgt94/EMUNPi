@@ -23,7 +23,8 @@ def get_ip_address(ifname):
 # Notification set to Track-My-Power
 
 def notif(title, text, type_):
-  IP = get_ip_address('lo')
+  IP = get_ip_address('wlan0')
+  print(IP)
   titles     = ["System Reboot","Davis Console","WeatherUnderground"]
   messages   = ["Energy restored: Working with Battery, IP: " + IP,"Energy restored: Working with Wall Adapter IP: " + IP,"USB not detectec","USB connection restored","Problem sending to WUN","Data send to WUN"]
   notif_type = ["info","error","warning"]
