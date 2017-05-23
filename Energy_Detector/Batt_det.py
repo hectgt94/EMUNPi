@@ -3,13 +3,29 @@ import time
 import sys
 import requests
 from bs4 import BeautifulSoup
+import socket
+import fcntl
+import struct
+
+######################################################
+# Get IP address
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
+
 
 ######################################################
 # Notification set to Track-My-Power
 
 def notif(title, text, type_):
+  IP = get_ip_address('lo')
   titles     = ["System Reboot","Davis Console","WeatherUnderground"]
-  messages   = ["Energy restored: Working with Battery","Energy restored: Working with Wall Adapter","USB not detectec","USB connection restored","Problem sending to WUN","Data send to WUN"]
+  messages   = ["Energy restored: Working with Battery, IP: " + IP,"Energy restored: Working with Wall Adapter IP: " + IP,"USB not detectec","USB connection restored","Problem sending to WUN","Data send to WUN"]
   notif_type = ["info","error","warning"]
 
   notification = [titles[title], messages[text], notif_type[type_]]

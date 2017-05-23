@@ -17,6 +17,9 @@ headers = {'Content-type': 'application/json'}
 IP = "0.0.0.0"
 attempt = 1
 
+tokenURL = "https://www.tplinkcloud.com/init3.php"
+postTOKEN = requests.post(tokenURL)
+
 while True:
     while IP == "0.0.0.0":
         print("Attempt " + str(attempt) + ": Finding IP...")
