@@ -18,7 +18,14 @@ IP = "0.0.0.0"
 attempt = 1
 
 tokenURL = "https://www.tplinkcloud.com/init3.php"
-postTOKEN = requests.post(tokenURL)
+paramstoken = {
+    'DATA[account]'  : "mpardo@uninorte.edu.co",
+    'DATA[password]' : "I6iIyjcCbSaUC2o%2Bo4ktopFtInNE5DS6VKi05tinApCcuXtqko9VZVUXVJMXpernCtTmBX8xo2TEyuzqyIRuT30t%2Bgrh39D2FbdxKZ%" + "2F38iqzZWXKVDwrJWEQ4pW2Nrr1n9yv2ngMGN9V2auU3SUxvJ8FfVM0SH2ReLZfRq0qwnc%3D"
+    'REQUEST'        : "LOGIN"
+
+    }
+    
+postTOKEN = requests.post(tokenURL,data=paramstoken)
 
 while True:
     while IP == "0.0.0.0":
