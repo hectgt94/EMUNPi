@@ -9,7 +9,7 @@ import subprocess
 PATH = "snapshot.jpg"
 
 #CAM INFO
-IPCAM_TOKEN = '8c585b83-53be92f904af4a6e83f9d1c'
+IPCAM_TOKEN = '8c585b83-17389eb66cbc49c7b243706'
 DEVICE_ID = 'FFFFDE8C8D867E29EC642E15FCE34D1D00004492'
 url = 'https://use1-wap.tplinkcloud.com/?token=' + IPCAM_TOKEN
 data = {"method":"passthrough","params":{"requestData":{"command":"GET_EXTRA_INFO","content":0},"deviceId":DEVICE_ID}}
