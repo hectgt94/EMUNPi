@@ -51,7 +51,8 @@ while True:
                 try:
                     urllib.urlretrieve(REQUEST_URL, FILENAME)
                 except:
-                    print("se jodio en el try")
+                    print("se jodio en el urlretrieve")
+                    IP = "0.0.0.0"
                     break
                 post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
                 img_response = json.loads(post_img.text)
@@ -61,6 +62,8 @@ while True:
                 print("-------------------")
                 time.sleep(0.4)
             except:
+                print("Se jodio en el 2do try ")
+                IP = "0.0.0.0"
                 break
     except:
         pass
