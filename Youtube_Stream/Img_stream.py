@@ -54,6 +54,9 @@ while True:
                 try:
                     print("saco la imagen...")
                     urllib.urlretrieve(REQUEST_URL, FILENAME)
+                    p=urllib.urlretrieve(REQUEST_URL, FILENAME)
+                    print(p)
+                    print("la saque")
                 except:
                     print("se jodio en el urlretrieve")
                     IP = "0.0.0.0"
