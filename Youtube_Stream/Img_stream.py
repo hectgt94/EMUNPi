@@ -28,7 +28,9 @@ postTOKEN = requests.post(tokenURL,data=paramstoken)
 
 while True:
     try:
+        print("empieza")
         while IP == "0.0.0.0":
+            print("vamo a buscarlo")
             print("Attempt " + str(attempt) + ": Finding IP...")
             IP_RESPONSE = requests.post(url, data=json.dumps(data), headers=headers)
             IP = get_ip.from_camera(IP_RESPONSE.text)
@@ -47,20 +49,25 @@ while True:
 
         #INITIATE STREAMING
         while True:
+            print("Vamo a saca la imagen")
             try:
                 try:
+                    print("saco la imagen...")
                     urllib.urlretrieve(REQUEST_URL, FILENAME)
                 except:
                     print("se jodio en el urlretrieve")
                     IP = "0.0.0.0"
                     break
+                print("vamo a subila")
                 post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
+                print(post_img.text)
                 img_response = json.loads(post_img.text)
                 img_url = str(img_response["data"]["img_url"]).replace('\\', '')
                 r=requests.get(SAVE_URL+img_url)
                 print(img_url)
                 print("-------------------")
                 time.sleep(0.4)
+                print("se subio")
             except:
                 print("Se jodio en el 2do try ")
                 IP = "0.0.0.0"
