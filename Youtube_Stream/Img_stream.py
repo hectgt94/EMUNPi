@@ -4,6 +4,9 @@ import urllib
 import get_ip
 import json
 import subprocess
+import shutil
+from PIL import Image
+from io import BytesIO
 
 #FILE INFO
 PATH = "snapshot.jpg"
@@ -28,9 +31,7 @@ postTOKEN = requests.post(tokenURL,data=paramstoken)
 
 while True:
     try:
-        print("empieza")
         while IP == "0.0.0.0":
-            print("vamo a buscarlo")
             print("Attempt " + str(attempt) + ": Finding IP...")
             IP_RESPONSE = requests.post(url, data=json.dumps(data), headers=headers)
             IP = get_ip.from_camera(IP_RESPONSE.text)
@@ -49,21 +50,17 @@ while True:
 
         #INITIATE STREAMING
         while True:
-            print("Vamo a saca la imagen")
             try:
                 try:
-                    print("saco la imagen...")
-                    urllib.urlretrieve(REQUEST_URL, FILENAME)
-                    p=urllib.urlretrieve(REQUEST_URL, FILENAME)
-                    print(p)
-                    print("la saque")
+                    r = requests.get(REQUEST_URL, stream=True)
+                    if r.status_code == 200:
+                        with open('snapshot.jpg', 'wb') as f:
+                            r.raw.decode_content = True
+                            shutil.copyfileobj(r.raw, f)
                 except:
-                    print("se jodio en el urlretrieve")
                     IP = "0.0.0.0"
                     break
-                print("vamo a subila")
-                post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open(FILENAME, 'rb')))
-                print(post_img.text)
+                post_img = requests.post('http://uploads.im/api?upload', files= dict(fileupload=open('snapshot.jpg', 'rb')))
                 img_response = json.loads(post_img.text)
                 img_url = str(img_response["data"]["img_url"]).replace('\\', '')
                 r=requests.get(SAVE_URL+img_url)
