@@ -5,8 +5,6 @@ import get_ip
 import json
 import subprocess
 import shutil
-from PIL import Image
-from io import BytesIO
 
 #FILE INFO
 PATH = "snapshot.jpg"
