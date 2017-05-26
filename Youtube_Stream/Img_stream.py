@@ -1,6 +1,5 @@
 import requests
 import time
-import urllib
 import get_ip
 import json
 import subprocess
@@ -65,7 +64,6 @@ while True:
                 print(img_url)
                 print("-------------------")
                 time.sleep(0.4)
-                print("se subio")
             except:
                 print("Se jodio en el 2do try ")
                 IP = "0.0.0.0"
