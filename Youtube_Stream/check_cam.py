@@ -12,7 +12,7 @@ while True:
 		delta_t = now - time
 		tot_min = delta_t.total_seconds()/60
 
-		if tot_min > 1:
+		if tot_min > 5:
 			os.system("sudo kill " + pid)
 			os.system("sudo python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
 	except:
