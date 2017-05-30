@@ -14,6 +14,6 @@ while True:
 
 		if tot_min > 1:
 			os.system("sudo kill " + pid)
-			os.system("python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
+			os.system("sudo python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
 	except:
 		pass
