@@ -55,6 +55,9 @@ while True:
                         with open('snapshot.jpg', 'wb') as f:
                             r.raw.decode_content = True
                             shutil.copyfileobj(r.raw, f)
+		    else:
+			IP = "0.0.0.0"
+			break
                 except:
                     IP = "0.0.0.0"
                     break
