@@ -20,7 +20,7 @@ while True:
 	now = datetime.now()
 	delta_t = now - time
 	tot_min = delta_t.total_seconds()/60
-	check = check_pid(pid)
+	check = check_pid(int(pid)
 
 	print(pid)
 	print(time)
