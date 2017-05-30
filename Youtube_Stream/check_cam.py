@@ -1,8 +1,7 @@
 from datetime import datetime
 import os
 
-def check_pid(pid):        
-    """ Check For the existence of a unix pid. """
+def check_pid(pid):
 	try:
 		os.kill(pid, 0)
 	except OSError:
