@@ -5,6 +5,7 @@ import json
 import subprocess
 import shutil
 import time
+import os
 
 #FILE INFO
 PATH = "snapshot.jpg"
@@ -27,6 +28,8 @@ paramstoken = {
     
 postTOKEN = requests.post(tokenURL,data=paramstoken)
 
+pid = os.getpid()
+print(pid)
 while True:
     try:
         while IP == "0.0.0.0":
@@ -45,7 +48,6 @@ while True:
         IMG_PATH='stream/' + FILENAME
         REQUEST_URL = "http://" + USER + ":" + PASS + "@" + IP + ":" + PORT +"/" + IMG_PATH
         SAVE_URL = 'http://admin:uninorte@track-mypower.tk/stream/new?url='
-        
         while True:
             #INITIATE STREAMING
             try:
