@@ -4,8 +4,8 @@ import get_ip
 import json
 import subprocess
 import shutil
-import time
 import os
+import datetime
 
 #FILE INFO
 PATH = "snapshot.jpg"
@@ -31,9 +31,9 @@ postTOKEN = requests.post(tokenURL,data=paramstoken)
 pid = os.getpid()
 print(pid)
 
-with open("log_Img.txt",'w') as file:
-    file.seek(0,0)
-    f.write(pid.rstrip('\r\n') + '\n')
+#with open("log_Img.txt",'w') as file:
+#    file.seek(0,0)
+#    file.write(str(pid).rstrip('\r\n') + '\n')
 
 while True:
     try:
@@ -62,9 +62,9 @@ while True:
                         with open('snapshot.jpg', 'wb') as f:
                             r.raw.decode_content = True
                             shutil.copyfileobj(r.raw, f)
-		    else:
-			IP = "0.0.0.0"
-			break
+                    else:
+                        IP = "0.0.0.0"
+                        break
                 except:
                     IP = "0.0.0.0"
                     break
@@ -72,6 +72,11 @@ while True:
                 img_response = json.loads(post_img.text)
                 img_url = str(img_response["data"]["img_url"]).replace('\\', '')
                 r=requests.get(SAVE_URL+img_url)
+                date1 = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                lines = [str(pid)+'\n', date1]
+                print(date1)
+                with open("log_Img.txt",'w') as file:
+                    file.writelines(lines)
                 print(img_url)
                 print("-------------------")
                 time.sleep(0.4)
