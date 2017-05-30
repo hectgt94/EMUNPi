@@ -30,6 +30,11 @@ postTOKEN = requests.post(tokenURL,data=paramstoken)
 
 pid = os.getpid()
 print(pid)
+
+with open("log_Img.txt",'w') as file:
+    file.seek(0,0)
+    f.write(pid.rstrip('\r\n') + '\n')
+
 while True:
     try:
         while IP == "0.0.0.0":
