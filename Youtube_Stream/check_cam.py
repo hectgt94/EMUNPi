@@ -9,6 +9,7 @@ def check_pid(pid):
 	else:
 		return True
 
+print("empezemos")
 while True:
 	try:
 		with open("log_Img.txt",'r') as file:
@@ -29,5 +30,6 @@ while True:
 			print("vamo a matalo")
 			os.system("sudo kill " + pid)
 			os.system("sudo python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
-	except:
+	except Exception, e:
+		print(e)
 		pass
