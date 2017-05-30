@@ -66,6 +66,7 @@ while True:
                 r=requests.get(SAVE_URL+img_url)
                 print(img_url)
                 print("-------------------")
+                IP = "0.0.0.0"
                 time.sleep(0.4)
             except:
                 print("Se jodio en el 2do try ")
