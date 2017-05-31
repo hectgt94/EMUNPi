@@ -25,7 +25,7 @@ while True:
 		if (tot_min > 5) and (check == True):
 			print("vamo a matalo")
 			os.system("sudo kill " + pid)
-			os.system("sudo python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
+			os.system("python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
 	except Exception, e:
 		print(e)
 		pass
