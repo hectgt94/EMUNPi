@@ -22,7 +22,7 @@ while True:
 		tot_min = delta_t.total_seconds()/60
 		check = check_pid(int(pid))
 
-		if (tot_min > 5) and (check == True):
+		if (tot_min > 1) and (check == True):
 			print("vamo a matalo")
 			os.system("sudo kill " + pid)
 			os.system("python /home/pi/EMUNPi/Youtube_Stream/Img_stream.py &")
